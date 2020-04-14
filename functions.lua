@@ -110,7 +110,7 @@ function initalize (java)
     end
     a_table = get_lines(txt_file)
     git = true
-    return a_table, txt_file, folder_name;
+    return a_table, txt_file, folder_name, git
 
 
 end

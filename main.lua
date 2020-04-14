@@ -14,7 +14,7 @@ java = {}
 java[1] = "unsplash"
 
 --Get table of phrases, the name of the text file where the phrases were, 
-_table, txt_file, folder = initalize(java) -- AN EXAMPLE OF MULTIPLE RETURN VALUES!
+_table, txt_file, folder, do_git = initalize(java) -- AN EXAMPLE OF MULTIPLE RETURN VALUES!
 
 all_sources(_table)
 
