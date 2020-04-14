@@ -119,6 +119,6 @@ end
 function github (folder)
     os.execute("git add "..folder.."/\\*.txt") --"git add Documentation/\*.txt"
     os.execute("git add "..folder.."/\\*.md")
-    os.execute("git commit "..folder)
+    os.execute("git commit -m \""..folder.."\"")
     os.execute("git push")
 end
