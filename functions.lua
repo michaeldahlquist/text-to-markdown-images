@@ -74,8 +74,8 @@ function write_md(file_name,new_table)
 
     io.write("# "..string.sub(file_name,1,-5)..'\n'..'\n') --Write title
     
-    for i = 1, #_table do
-        io.write("**".._table[i].."**"..'\n\n')
+    for i = 1, #new_table do
+        io.write("**"..new_table[i].."**"..'\n\n')
         io.write("!["..new_table[i].."](".."unsplash_"..unsplash_table[i]..".jpg)\n\n")
     end
     
@@ -96,7 +96,8 @@ function initalize (java)
 
     --Ask about git
     git_valid = false
-    while not git_valid and false do -- THIS LOOP WILL NOT HAPPEN AT THE MOMENT
+    git = false
+    while not git_valid  do -- THIS LOOP WILL NOT HAPPEN AT THE MOMENT
         io.write("Would you like to push the final product to a GitHub website?: ")
         git_ans = io.read("*line")
         if string.upper(string.sub(git_ans,1,1)) == 'Y' then
@@ -107,8 +108,9 @@ function initalize (java)
             git_valid = true
         end
     end
-
-    return get_lines(txt_file), git, folder_name;
+    a_table = get_lines(txt_file)
+    git = true
+    return a_table, txt_file, folder_name;
 
 
 end
