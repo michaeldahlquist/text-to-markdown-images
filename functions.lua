@@ -55,13 +55,16 @@ secondary_table = coroutine.create(function (phrases)
 end)
 
 function all_sources(phrases)
+    while coroutine.resume(get_unsplash_jpgs, phrases) and coroutine.resume(secondary_table,phrases) do end
+    --[[
     for i = 1, #phrases do
         coroutine.resume(get_unsplash_jpgs,phrases)
         coroutine.resume(secondary_table,phrases)
-    end
+    end  
+    ]]
 end
 
-function write_md(file_name,folder,new_table)
+function write_md(file_name,new_table)
     --Input file names
     unsplash_table = new_table
     concatenate(unsplash_table, ",")
@@ -77,4 +80,43 @@ function write_md(file_name,folder,new_table)
     end
     
     file:close() --close file
+end
+
+function initalize (java)
+    folder_name = string.gsub(string.gsub(string.sub(os.date("%x"),1,8).."_"..string.sub(os.date("%c"),12,19), ":", "_"), "/",  "_")
+
+    --Compile all java files used
+    javac = function (x) return os.execute("javac "..x..".java") end --Annonymous function
+    for i = 1, #java do javac(java[i]) end
+
+    --START MAIN
+    io.write("Please input the .txt file: ")
+    txt_file = io.read("*line")
+    -- TO DO: Add check to see if this file is in the currect directory, and last 4 == ".txt"
+
+    --Ask about git
+    git_valid = false
+    while not git_valid and false do -- THIS LOOP WILL NOT HAPPEN AT THE MOMENT
+        io.write("Would you like to push the final product to a GitHub website?: ")
+        git_ans = io.read("*line")
+        if string.upper(string.sub(git_ans,1,1)) == 'Y' then
+            git = true
+            git_valid = true
+        elseif string.upper(string.sub(git_ans,1,1)) == 'N' then
+            git = false
+            git_valid = true
+        end
+    end
+
+    return get_lines(txt_file), git, folder_name;
+
+
+end
+
+
+function github (folder)
+    os.execute("git add "..folder.."/\\*.txt") --"git add Documentation/\*.txt"
+    os.execute("git add "..folder.."/\\*.md")
+    os.execute("git commit "..folder)
+    os.execute("git push")
 end
