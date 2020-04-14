@@ -11,6 +11,7 @@ Interesting and Distinguishing Features:
 * annonymous functions
 * concurrecy
 * `os.execute("<bash command>")`
+* multiple return values
 
 Requirements:
 * Lua interpreter
