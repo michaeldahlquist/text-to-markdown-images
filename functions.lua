@@ -15,6 +15,11 @@ Purpose:
 ]]
 
 function initialize (java)
+    --This function takes in a table from [1,n] of java files to be compiled. It returns
+    --the name of the file containg the words, which is guarenteed to be a file in the
+    --current directory, a table containing the lines from that file, the name of the folder
+    --which is the current data and time as the start of this function during execution, and
+    --whether the user wishes to push the final product to GitHub.
     folder_name = string.gsub(string.gsub(string.sub(os.date("%x"),1,8).."_"..string.sub(os.date("%c"),12,19), ":", "_"), "/",  "_")
 
     --Compile all java files used
@@ -59,7 +64,9 @@ function initialize (java)
         git[1] = io.read("*line")
     end
     a_table = get_lines(txt_file)
-    return a_table, txt_file, folder_name, git[2] --multiple return values: table, String, String, boolean
+    return txt_file, a_table, folder_name, git[2] --multiple return values: table, String, String, boolean
+    --Lhf. “Check If a File Exists with Lua.” 
+    --Stack Overflow, 14 Feb. 2011, stackoverflow.com/questions/4990990/check-if-a-file-exists-with-lua.
 end
 
 function get_lines(file_name)
@@ -78,8 +85,8 @@ function get_lines(file_name)
         end
         file:close()
         return new_table
-    --A portion of this code was inspired by:
-    --https://stackoverflow.com/questions/11201262/how-to-read-data-from-a-file-in-lua
+    --Kiers, Bart. “How to Read Data from a File in Lua.” 
+    --Stack Overflow, 26 June 2012, stackoverflow.com/questions/11201262/how-to-read-data-from-a-file-in-lua.
 end
 
 get_unsplash = coroutine.create(function (phrases, time)
@@ -108,6 +115,9 @@ get_loremflickr = coroutine.create(function (phrases,time)
 end)
 
 function all_sources(phrases)
+    --This function takes in a table of phrases and downloads random images
+    --from unsplash and loremflickr. It returns a table containing the download
+    --time of each individual image.
     if #phrases == 0 then return end --if there are no images, don't execute
     count = 1
     phrases[count] = string.gsub(phrases[count],"%A", ",")
@@ -124,8 +134,12 @@ function all_sources(phrases)
 end
 
 function write_md(file_name,new_table,time)
+    --This function takes in a file_name, table of phrases, and a table of times
+    --and creates a markdown file with the title being the file_name (without the
+    --trailing ".md"). It addes the phrases searched, the image that download the 
+    --quickest, and the site that was used to search for it.
     function write_picture(i)
-        if time["unsplash"][i] >= time["loremflickr"][i] then
+        if time["unsplash"][i] <= time["loremflickr"][i] then
             return function (x)
                 io.write("**"..new_table[x].."**"..'\n\n') 
                 io.write("!["..new_table[x].."](".."unsplash_"..new_table[x]..".jpg)\n\n")
@@ -147,11 +161,14 @@ function write_md(file_name,new_table,time)
     for i = 1, #new_table do
         write_picture(i)(i)
     end
-    
     file:close() --close file
+    --“Lua 5.3 Reference Manual.” Lua 5.3 Reference Manual - Contents, www.lua.org/manual/5.3/.
 end
 
 function github (folder)
+    --Precondition: git is installed and current directory is a git repository
+    --github takes in a folder name, and adds, commits, and pushes all the
+    --files in the folder to the GitHub repository.
     os.execute("git add "..folder.."/\\*.jpg") --"git add Documentation/\*.txt"
     os.execute("git add "..folder.."/\\*.md")
     os.execute("git commit -m \""..folder.."\"")

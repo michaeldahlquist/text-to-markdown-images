@@ -22,7 +22,7 @@ java[1] = "unsplash"
 java[2] = "loremflickr"
 
 --Get table of phrases, the name of the text file where the phrases were, 
-phrase_table, txt_file, folder, do_git = initialize(java) -- multiple return values of different types
+txt_file, phrase_table, folder, do_git = initialize(java) -- multiple return values of different types
 
 time = all_sources(phrase_table) --Downloads pictures and returns download time tables
 
