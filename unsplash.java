@@ -2,14 +2,15 @@
  * Names: Michael Dahlquist & Kristen Qako
  * Class: csci324 - spring2020
  * File:  unsplash.java
+ * Date:  April 21st, 2020
  * 
  * Purpose:
- *      This function takes in a one or two String arguement(s).
- *      If one arguement is given:
- *          - It must contain either one word, or multiple words seperated by comma(s)
+ *      This function takes in a one or two String argument(s).
+ *      If one argument is given:
+ *          - It must contain either one word, or multiple words separated by comma(s)
  *          - The image will be saved as args[0].jpg
- *      If two arguements are given:
- *          - The first arg must contain either one word, or multiple words seperated by comma(s)
+ *      If two arguments are given:
+ *          - The first arg must contain either one word, or multiple words separated by comma(s)
  *          - The second arg must contain the saved file name (.jpg will be added by the program)
  * 
  * This code was inspired by:

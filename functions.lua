@@ -3,39 +3,63 @@ Names: Michael Dahlquist & Kristen Qako
 Class: csci324 - spring2020
 File:  functions.lua
 Purpose:
-    Contains the functions for main.lua
-
+    Contains the functions for text-to-markdown-images
+    Functions included:
+        - initialize(table)
+        - get_lines(String)
+        - get_unsplash_jpgs(table,table) [coroutine]
+        - get_loremflickr(table,table)   [coroutine]
+        - all_sources(table)
+        - wwrite_md(String,table,table)
+        - github(String)
 ]]
 
-function initalize (java)
+function initialize (java)
     folder_name = string.gsub(string.gsub(string.sub(os.date("%x"),1,8).."_"..string.sub(os.date("%c"),12,19), ":", "_"), "/",  "_")
-    --folder_name = "test_git_05"
 
     --Compile all java files used
-    javac = function (x) return os.execute("javac "..x..".java") end --Annonymous function
-    for i = 1, #java do javac(java[i]) end
+    javac = function (x) return os.execute("javac "..x..".java") end --Anonymous function
+    for i = 1, #java do 
+        javac(java[i]) 
+    end
 
-    --START MAIN
+    --Get text file name
     io.write("Please input the .txt file: ")
     txt_file = io.read("*line")
-    -- TO DO: Add check to see if this file is in the currect directory, and last 4 == ".txt"
+    while (function(x) --Anonymous function that returns whether a valid name needs to be found
+        local f=io.open(x,"r")
+        if f~=nil then 
+            io.close(f) 
+            return false 
+        else 
+            return true 
+        end
+    end)(txt_file) do
+        io.write("Sorry, couldn't find that file. Please input the .txt file: ")
+        txt_file = io.read("*line")
+    end
 
     --Ask about git
-    git_valid = false
-    git = false
-    while not git_valid  do -- THIS LOOP WILL NOT HAPPEN AT THE MOMENT
-        io.write("Would you like to push the final product to a GitHub website?: ")
-        git_ans = io.read("*line")
-        if string.upper(string.sub(git_ans,1,1)) == 'Y' then
-            git = true
-            git_valid = true
-        elseif string.upper(string.sub(git_ans,1,1)) == 'N' then
-            git = false
-            git_valid = true
+    io.write("Would you like to push the final product to a GitHub website? (Y/N): ")
+    git = {} -- git will be a table (to pass by reference to while anonymous functions)
+    git[1] = io.read("*line")   -- git[1] => User response as a String
+    git[2] = false              -- git[2] => User response as a boolean
+    while (function(x) -- Anonymous function that returns whether your 
+        if string.upper(string.sub(x[1],1,1)) == 'Y' then
+            x[2] = true --push to github
+            return false
+        elseif string.upper(string.sub(x[1],1,1)) == 'N' then
+            x[2] = false --dont push to github
+            return false
+        else
+            return true
         end
+    end)(git) do
+        io.write("Invalid response. Would you like to push the final product to a GitHub website? (Y/N): ")
+        git[1] = io.read("*line")
     end
     a_table = get_lines(txt_file)
-    return a_table, txt_file, folder_name, git
+    return a_table, txt_file, folder_name, git[2] --multiple return values: table, String, String, boolean
 end
 
 function get_lines(file_name)
@@ -58,26 +82,27 @@ function get_lines(file_name)
     --https://stackoverflow.com/questions/11201262/how-to-read-data-from-a-file-in-lua
 end
 
-get_unsplash_jpgs = coroutine.create(function (phrases, time)
+get_unsplash = coroutine.create(function (phrases, time)
     --coroutine that downloads one image from unsplash each time it is resumed
-    java_unsplash = function (x) return os.execute("java unsplash "..x) end -- ANNONYMOUS FUNCTION
+    java_unsplash = function (x) return os.execute("java unsplash "..x) end
     for i = 1, #phrases do
         time["unsplash"][i] = os.clock()
         java_unsplash(phrases[i])
-        print("Executed unsplash: "..phrases[i])
         time["unsplash"][i] = os.clock() - time["unsplash"][i]
+        print("Downloaded from unsplash: "..phrases[i])
         coroutine.yield()
     end
 end)
 
 get_loremflickr = coroutine.create(function (phrases,time)
     --coroutine that downloads one image from loremflickr each time it is resumed
-    java_loremflickr = function (x) return os.execute("java loremflickr "..x) end -- ANNONYMOUS FUNCTION
+    java_loremflickr = function (x) return os.execute("java loremflickr "..x) end
     for i = 1, #phrases do
+        --File download time:
         time["loremflickr"][i] = os.clock()
         java_loremflickr(phrases[i])
-        print("Executed loremflickr: "..phrases[i])
         time["loremflickr"][i] = os.clock() - time["loremflickr"][i]
+        print("Downloaded from loremflickr: "..phrases[i])
         coroutine.yield()
     end
 end)
@@ -87,9 +112,9 @@ function all_sources(phrases)
     count = 1
     phrases[count] = string.gsub(phrases[count],"%A", ",")
     time = {}
-    time["unsplash"] = {}
+    time["unsplash"] = {}       --Example of tables inside table
     time["loremflickr"] = {}
-    while coroutine.resume(get_unsplash_jpgs, phrases, time) and coroutine.resume(get_loremflickr,phrases,time) do
+    while coroutine.resume(get_unsplash, phrases, time) and coroutine.resume(get_loremflickr,phrases,time) do
         if count < #phrases then
             count = count + 1
             phrases[count] = string.gsub(phrases[count],"%A", ",")
@@ -99,20 +124,28 @@ function all_sources(phrases)
 end
 
 function write_md(file_name,new_table,time)
-    --Write md
+    function write_picture(i)
+        if time["unsplash"][i] >= time["loremflickr"][i] then
+            return function (x)
+                io.write("**"..new_table[x].."**"..'\n\n') 
+                io.write("!["..new_table[x].."](".."unsplash_"..new_table[x]..".jpg)\n\n")
+                io.write("*this image was randomly found via https://source.unsplash.com/400x300/?"..new_table[x].."*\n\n") 
+            end
+        else 
+            return function (x) 
+                io.write("**"..new_table[x].."**"..'\n\n')
+                io.write("!["..new_table[x].."](".."loremflickr_"..new_table[x]..".jpg)\n\n") 
+                io.write("*this image was randomly found via https://loremflickr.com/g/400/300/"..new_table[x].."*\n\n") 
+            end
+        end
+    end
+    --Begin writing the markdown file:
     local file = io.open(file_name, "w") --open file
     io.output(file) --set output to file
 
     io.write("# "..string.sub(file_name,1,-4)..'\n'..'\n') --Write title
-    
     for i = 1, #new_table do
-        if time["unsplash"][i] <= time["loremflickr"][i] then
-            io.write("**"..new_table[i].."**"..'\n\n')
-            io.write("!["..new_table[i].."](".."unsplash_"..new_table[i]..".jpg)\n\n")
-        else
-            io.write("**"..new_table[i].."**"..'\n\n')
-            io.write("!["..new_table[i].."](".."loremflickr_"..new_table[i]..".jpg)\n\n")
-        end
+        write_picture(i)(i)
     end
     
     file:close() --close file
