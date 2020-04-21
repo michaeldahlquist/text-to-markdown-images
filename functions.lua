@@ -16,7 +16,7 @@ Purpose:
 
 function initialize (java)
     --This function takes in a table from [1,n] of java files to be compiled. It returns
-    --the name of the file containg the words, which is guarenteed to be a file in the
+    --the name of the file containg the words, which is guaranteed to be a file in the
     --current directory, a table containing the lines from that file, the name of the folder
     --which is the current data and time as the start of this function during execution, and
     --whether the user wishes to push the final product to GitHub.
@@ -175,5 +175,5 @@ function github (folder)
     os.execute("git push")
     print("Please note that the site might not be rendered for a while")
     print("Here is the link:")
-    print("https://www.michaeldahlquist.github.io/test-to-markdown-images/"..folder.."/")
+    print("https://www.michaeldahlquist.github.io/test-to-markdown-images/"..folder.."/") --change root here if you wish to get a link to your github page.
 end
